@@ -68,7 +68,7 @@ var Admin = (function () {
   }
   function describe(status, msg) {
     if (status === 401) return 'La llave de GitHub no es válida o venció. Pide que la renueven en la página de configuración.';
-    if (status === 403 || status === 404) return 'La llave de GitHub no tiene permiso de escritura en este repositorio. (' + msg + ')';
+    if (status === 403 || status === 404) return WRITE_HELP + ' (' + msg + ')';
     if (status === 409 || status === 422) return 'Conflicto al guardar: ' + msg;
     return 'Error de GitHub (' + status + '): ' + msg;
   }
@@ -76,8 +76,19 @@ var Admin = (function () {
   async function checkAccess(token) {
     var repo = await gh(token, 'GET', apiPath(''));
     if (!repo.permissions || !repo.permissions.push) throw new Error('La llave no tiene permiso para escribir en el repositorio.');
+    // repo.permissions reflects the account, not the token: a read-only token still reports push=true.
+    // Creating an unreferenced blob is harmless and only works with Contents: Read and write.
+    try {
+      await gh(token, 'POST', apiPath('/git/blobs'), { content: 'ok', encoding: 'utf-8' });
+    } catch (e) {
+      if (e.status === 403 || e.status === 404) throw new Error(WRITE_HELP);
+      throw e;
+    }
     return repo;
   }
+  var WRITE_HELP = 'La llave puede leer el repositorio pero no escribir en él. En GitHub → Settings → Developer settings → ' +
+    'Personal access tokens → Fine-grained tokens → abre la llave → Edit: en «Repository access» elige «Only select repositories» ' +
+    'con celia-english-web, y en «Repository permissions» pon «Contents» en «Read and write». Guarda y vuelve a intentarlo (la llave no cambia).';
 
   async function headSha(token) {
     var ref = await gh(token, 'GET', apiPath('/git/ref/heads/' + REPO.branch));
