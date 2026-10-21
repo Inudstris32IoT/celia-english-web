@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Panel de fichas</title>
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <!-- login -->
+  <main id="loginView" class="wrap">
+    <form class="card login" id="loginForm">
+      <h1>Panel de fichas</h1>
+      <p class="muted">English with Teacher Celia</p>
+      <label class="field"><span>Usuario</span><input id="lUser" type="text" autocomplete="username" required></label>
+      <label class="field"><span>Contraseña</span><input id="lPw" type="password" autocomplete="current-password" required></label>
+      <div id="loginMsg"></div>
+      <button class="btn primary" id="loginBtn" type="submit">Entrar</button>
+    </form>
+  </main>
+
+  <!-- panel -->
+  <div id="panelView" hidden>
+    <header class="topbar">
+      <div class="wrap">
+        <h1>Fichas</h1>
+        <button class="btn primary" id="newBtn">+ Nueva ficha</button>
+        <a href="../" target="_blank" rel="noopener">Ver la web</a>
+        <span class="who"><span id="who"></span> · <button class="btn small" id="logoutBtn">Salir</button></span>
+      </div>
+    </header>
+    <main class="wrap">
+      <div id="panelMsg"></div>
+      <div class="card">
+        <div class="row">
+          <input id="search" class="grow" type="search" placeholder="Buscar fichas por texto o número">
+          <select id="kindFilter" style="width:auto">
+            <option value="">Todas</option>
+            <option value="media">Con imágenes o video</option>
+            <option value="text">Solo texto</option>
+            <option value="poll">Encuestas</option>
+            <option value="third">Con fuentes de terceros</option>
+          </select>
+        </div>
+        <p class="muted" id="listCount"></p>
+        <ul class="list" id="list"></ul>
+        <p style="text-align:center"><button class="btn" id="moreBtn" hidden>Mostrar más</button></p>
+      </div>
+    </main>
+  </div>
+
+  <!-- editor -->
+  <div id="editorView" hidden>
+    <header class="topbar">
+      <div class="wrap">
+        <h1 id="edTitle">Nueva ficha</h1>
+        <span class="who"><button class="btn" id="cancelBtn" type="button">Cancelar</button></span>
+      </div>
+    </header>
+    <main class="wrap">
+      <form class="card" id="edForm" novalidate>
+        <div class="row">
+          <label class="field grow"><span>Fecha y hora de publicación</span><input id="edTs" type="datetime-local" required></label>
+          <label class="field grow"><span>Tipo de ficha</span>
+            <select id="edType">
+              <option value="media">Imágenes o video (con texto opcional)</option>
+              <option value="text">Solo texto</option>
+              <option value="poll">Encuesta</option>
+            </select>
+          </label>
+        </div>
+
+        <label class="field"><span id="edTextLabel">Texto</span>
+          <textarea id="edText" placeholder="Escribe la explicación. Puedes usar *negrita*, _cursiva_ y ~tachado~ como en WhatsApp."></textarea>
+        </label>
+
+        <section id="pollSection" hidden>
+          <h3>Opciones de la encuesta</h3>
+          <div id="opts"></div>
+          <button class="btn small" type="button" id="addOpt">+ Agregar opción</button>
+          <p class="muted">Los votos son opcionales: sirven para mostrar el resultado.</p>
+        </section>
+
+        <section id="mediaSection">
+          <h3>Imágenes y videos</h3>
+          <p class="muted">Cada archivo debe indicar su autoría. Si no es de Celia, escribe el nombre de su dueño (persona, cuenta, institución o película/serie).</p>
+          <div id="mediaList"></div>
+          <label class="drop" id="drop">
+            <input id="fileInput" type="file" accept="image/*,video/mp4,video/webm" multiple hidden>
+            Arrastra aquí imágenes o videos, o <u>haz clic para elegirlos</u><br>
+            <small>Imágenes JPG, PNG o WEBP · videos MP4 de hasta 25 MB</small>
+          </label>
+          <label class="confirm" id="confirmRow" hidden style="margin-top:14px">
+            <input type="checkbox" id="edConfirm">
+            <span>Confirmo que los créditos indicados corresponden a los dueños de cada imagen o video.</span>
+          </label>
+        </section>
+
+        <div id="edMsg"></div>
+        <div class="row" style="margin-top:16px">
+          <button class="btn primary" type="submit" id="saveBtn">Guardar y publicar</button>
+          <button class="btn danger" type="button" id="deleteBtn" hidden>Eliminar ficha</button>
+        </div>
+      </form>
+    </main>
+  </div>
+
+  <div class="modal" id="confirmModal" hidden>
+    <div class="card">
+      <h3 id="cmTitle">¿Eliminar?</h3>
+      <p id="cmText"></p>
+      <div class="row"><button class="btn danger" id="cmYes">Sí, eliminar</button><button class="btn" id="cmNo">Cancelar</button></div>
+    </div>
+  </div>
+  <div class="busy" id="busy" hidden><span id="busyText">Guardando…</span></div>
+
+  <script src="lib.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

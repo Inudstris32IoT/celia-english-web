@@ -1,11 +1,18 @@
-(function () {
+fetch('data/posts.json?v=' + Date.now())
+  .then(function (r) { return r.json(); })
+  .then(start)
+  .catch(function () {
+    document.getElementById('count').textContent = 'No se pudieron cargar las publicaciones. Recarga la página.';
+  });
+
+function start(posts) {
   'use strict';
 
   var AUTHOR = 'Celia Jiménez';
   var PAGE = 24;
   var MONTHS = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 
-  var posts = window.POSTS || [];
+  posts.sort(function (a, b) { return a.ts < b.ts ? -1 : a.ts > b.ts ? 1 : a.id - b.id; });
   var state = { q: '', type: 'all', month: '', newest: true, shown: 0, list: [] };
   var $ = function (id) { return document.getElementById(id); };
   var feed = $('feed');
@@ -43,11 +50,15 @@
   }
   function creditLabel(c) {
     if (c.kind === 'third') return 'Fuente: ' + c.source;
-    if (c.kind === 'meme') return 'Meme · autor no identificado';
+    if (c.kind === 'meme') return 'Meme · ' + (c.source || 'autor no identificado');
     return 'Autoría: ' + AUTHOR;
   }
   function creditHtml(c) {
-    return '<span class="credit ' + c.kind + '">' + esc(creditLabel(c)) + '</span>';
+    var label = esc(creditLabel(c));
+    if (c.url && /^https?:\/\//.test(c.url)) {
+      label = '<a href="' + esc(c.url) + '" target="_blank" rel="noopener">' + label + '</a>';
+    }
+    return '<span class="credit ' + c.kind + '">' + label + '</span>';
   }
   function kindOf(p) {
     if (p.type === 'poll') return 'poll';
@@ -285,4 +296,4 @@
     var el = document.getElementById('post-' + target);
     if (el) el.scrollIntoView();
   }
-})();
+}

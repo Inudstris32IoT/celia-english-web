@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Configurar acceso</title>
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <header class="topbar"><div class="wrap"><h1>Configurar acceso al panel</h1><a class="who" href="./">Ir al panel</a></div></header>
+  <main class="wrap">
+    <section class="card">
+      <h2>1. Crea una llave de GitHub (solo la primera vez o cuando venza)</h2>
+      <ol>
+        <li>Con la cuenta dueña del repositorio, abre <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">GitHub → Fine-grained token nuevo</a>.</li>
+        <li><b>Token name:</b> panel-celia. <b>Expiration:</b> la más larga que permita (puedes renovarla después).</li>
+        <li><b>Repository access:</b> <i>Only select repositories</i> → <code>celia-english-web</code>.</li>
+        <li><b>Permissions → Repository permissions → Contents:</b> <i>Read and write</i>. No actives nada más.</li>
+        <li>Pulsa <b>Generate token</b> y copia la llave (empieza con <code>github_pat_</code>).</li>
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2>2. Crea o actualiza un usuario</h2>
+      <p class="muted">La llave se cifra en este navegador con la contraseña que elijas y se guarda cifrada en el repositorio. Nunca se guarda ni se envía sin cifrar.</p>
+      <form id="form" autocomplete="off">
+        <label class="field"><span>Llave de GitHub</span><input id="token" type="password" required placeholder="github_pat_…" autocomplete="off"></label>
+        <label class="field"><span>Usuario</span><input id="user" type="text" required placeholder="celia" autocomplete="off"></label>
+        <label class="field"><span>Contraseña</span><input id="pw" type="password" required minlength="10" autocomplete="new-password"><small>Mínimo 10 caracteres. Usa una frase larga: es lo que protege la llave.</small></label>
+        <label class="field"><span>Repite la contraseña</span><input id="pw2" type="password" required minlength="10" autocomplete="new-password"></label>
+        <div id="msg"></div>
+        <button class="btn primary" id="save" type="submit">Guardar usuario</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Usuarios con acceso</h2>
+      <ul class="list" id="users"><li class="muted">Cargando…</li></ul>
+      <p class="muted">Para quitar un acceso, escribe la llave arriba y pulsa «Quitar» junto al usuario. Si la llave vence, crea una nueva y vuelve a guardar cada usuario con su contraseña.</p>
+    </section>
+  </main>
+
+  <script src="lib.js"></script>
+  <script>
+  (function () {
+    var $ = function (id) { return document.getElementById(id); };
+    function show(kind, text) { $('msg').innerHTML = '<div class="msg ' + kind + '"></div>'; $('msg').firstChild.textContent = text; }
+
+    async function loadConfig(token) {
+      try { return JSON.parse(await Admin.readText(token, Admin.CONFIG_PATH)); }
+      catch (e) { if (e.status === 404) return { users: [] }; throw e; }
+    }
+    async function renderUsers() {
+      var cfg = await Admin.readConfig();
+      var users = (cfg && cfg.users) || [];
+      $('users').innerHTML = users.length ? '' : '<li class="muted">Todavía no hay usuarios.</li>';
+      users.forEach(function (u) {
+        var li = document.createElement('li');
+        li.className = 'item';
+        li.innerHTML = '<div class="body"><b></b></div><div class="actions"><button class="btn small danger">Quitar</button></div>';
+        li.querySelector('b').textContent = u.user;
+        li.querySelector('button').onclick = function () { removeUser(u.user); };
+        $('users').appendChild(li);
+      });
+    }
+    async function removeUser(name) {
+      var token = $('token').value.trim();
+      if (!token) { show('error', 'Escribe la llave de GitHub para poder quitar usuarios.'); return; }
+      try {
+        await Admin.checkAccess(token);
+        var cfg = await loadConfig(token);
+        cfg.users = cfg.users.filter(function (u) { return u.user !== name; });
+        await Admin.commit(token, 'Panel: quita el acceso de ' + name, { extra: [{ path: Admin.CONFIG_PATH, text: JSON.stringify(cfg, null, 2) + '\n' }] });
+        show('ok', 'Acceso de «' + name + '» eliminado. Se aplica en 1–2 minutos.');
+        setTimeout(renderUsers, 1500);
+      } catch (e) { show('error', e.message); }
+    }
+
+    $('form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var token = $('token').value.trim(), user = Admin.normUser($('user').value), pw = $('pw').value;
+      if (pw !== $('pw2').value) { show('error', 'Las contraseñas no coinciden.'); return; }
+      if (pw.length < 10) { show('error', 'La contraseña debe tener al menos 10 caracteres.'); return; }
+      if (!/^[a-z0-9._-]{3,30}$/.test(user)) { show('error', 'El usuario debe tener 3 a 30 letras, números, punto, guion o guion bajo, sin espacios.'); return; }
+      $('save').disabled = true;
+      try {
+        show('info', 'Comprobando la llave…');
+        await Admin.checkAccess(token);
+        show('info', 'Cifrando la llave (puede tardar unos segundos)…');
+        var entry = await Admin.encryptToken(user, pw, token);
+        var cfg = await loadConfig(token);
+        cfg.users = (cfg.users || []).filter(function (u) { return u.user !== user; }).concat([entry]);
+        await Admin.commit(token, 'Panel: guarda el acceso de ' + user, { extra: [{ path: Admin.CONFIG_PATH, text: JSON.stringify(cfg, null, 2) + '\n' }] });
+        $('pw').value = $('pw2').value = '';
+        show('ok', 'Usuario «' + user + '» guardado. Podrá entrar al panel en 1–2 minutos, cuando GitHub publique el cambio.');
+        setTimeout(renderUsers, 1500);
+      } catch (err) {
+        show('error', err.message);
+      } finally {
+        $('save').disabled = false;
+      }
+    });
+
+    renderUsers();
+  })();
+  </script>
+</body>
+</html>

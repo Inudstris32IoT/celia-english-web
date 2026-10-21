@@ -89,6 +89,7 @@ select { padding-right: 8px; }
 video.tile-video { display: block; width: 100%; background: #000; }
 .credits { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 14px 0; }
 .credit { display: inline-block; font-size: 12px; font-weight: 500; border-radius: 6px; padding: 2px 8px; line-height: 1.5; }
+.credit a { color: inherit; }
 .credit.author { background: var(--author-soft); color: var(--accent); }
 .credit.third { background: var(--third-soft); color: var(--third); }
 .credit.meme { background: var(--meme-soft); color: var(--meme); }
