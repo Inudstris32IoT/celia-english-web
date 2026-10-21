@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>English with Teacher Celia</title>
+  <meta name="description" content="Archivo abierto de las publicaciones de la comunidad English with Teacher Celia: frases, vocabulario, phrasal verbs y consejos para aprender inglés.">
+  <meta property="og:title" content="English with Teacher Celia">
+  <meta property="og:description" content="Archivo abierto de frases, vocabulario y consejos para aprender inglés, por Celia Jiménez.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧡</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap">
+      <p class="eyebrow">Archivo de la comunidad</p>
+      <h1>English with Teacher&nbsp;Celia</h1>
+      <p class="lede">Frases, vocabulario, phrasal verbs y consejos para hablar inglés con naturalidad, publicados por <strong>Celia Jiménez</strong> en su comunidad de WhatsApp.</p>
+      <p class="stats" id="stats"></p>
+    </div>
+  </header>
+
+  <div class="toolbar" id="toolbar">
+    <div class="wrap toolbar-inner">
+      <label class="search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="q" type="search" placeholder="Buscar: phrasal verbs, coffee, idioms…" autocomplete="off" aria-label="Buscar publicaciones">
+      </label>
+      <div class="filters">
+        <div class="chips" role="group" aria-label="Tipo de publicación">
+          <button class="chip" data-type="all" aria-pressed="true">Todo</button>
+          <button class="chip" data-type="image" aria-pressed="false">Imágenes</button>
+          <button class="chip" data-type="video" aria-pressed="false">Videos</button>
+          <button class="chip" data-type="poll" aria-pressed="false">Encuestas</button>
+          <button class="chip" data-type="text" aria-pressed="false">Textos</button>
+        </div>
+        <select id="month" aria-label="Filtrar por mes"><option value="">Todos los meses</option></select>
+        <button class="sort" id="sort" aria-label="Cambiar orden">Más recientes</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <p class="result-count" id="count" aria-live="polite"></p>
+    <div class="feed" id="feed"></div>
+    <div id="sentinel" class="sentinel"></div>
+    <p class="empty" id="empty" hidden>No hay publicaciones que coincidan con tu búsqueda.</p>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <h2>Créditos y autoría</h2>
+      <p>Los textos y la mayoría de las imágenes son de <strong>Celia Jiménez</strong>, que autorizó publicarlos en esta web. Cada imagen indica su autoría:</p>
+      <ul class="legend">
+        <li><span class="credit author">Autoría: Celia Jiménez</span> Material creado por la profesora.</li>
+        <li><span class="credit third">Fuente: …</span> La imagen lleva la marca de otro autor o institución. Los derechos son de ese autor; aquí se comparte con fines educativos.</li>
+        <li><span class="credit meme">Meme · autor no identificado</span> Memes o escenas de películas y series. Sus derechos son de sus titulares.</li>
+      </ul>
+      <div id="sources"></div>
+      <p class="small">Solo se incluyen las publicaciones de la profesora. Los mensajes y datos de los demás miembros del grupo no se publican.</p>
+    </div>
+  </footer>
+
+  <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="Imagen ampliada">
+    <button class="lb-close" id="lbClose" aria-label="Cerrar">×</button>
+    <button class="lb-nav lb-prev" id="lbPrev" aria-label="Anterior">‹</button>
+    <figure class="lb-figure">
+      <div class="lb-media" id="lbMedia"></div>
+      <figcaption>
+        <span id="lbCredit"></span>
+        <span class="lb-pos" id="lbPos"></span>
+      </figcaption>
+    </figure>
+    <button class="lb-nav lb-next" id="lbNext" aria-label="Siguiente">›</button>
+  </div>
+
+  <script src="data/posts.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
